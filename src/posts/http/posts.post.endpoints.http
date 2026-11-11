@@ -1,0 +1,15 @@
+POST http://localhost:5000/posts 
+Content-Type: application/json
+{
+    "title": "test title 2",
+    "content": "test content 2",
+    "slug": "test-title-2",
+    "status": "draft",
+    "tags": [1,2],
+    "featureImgUrl": "https://jkbt.site/imgs/logo.png",
+    "publishOn": "2026-08-19T15:43:00.000Z",
+    "meta":{
+        "readTime":"5 min read"
+    },
+    "authorId":2
+}

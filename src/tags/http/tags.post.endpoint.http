@@ -1,0 +1,7 @@
+POST http://localhost:5000/tags 
+Content-Type: application/json
+
+{
+    "label":"AI",
+    "description": "AI related topics"
+}

@@ -1,0 +1,16 @@
+PATCH http://localhost:5000/posts 
+Content-Type: application/json
+{
+  "id": 2,
+    "title": "test title updated",
+    "content": "test content update",
+    "slug": "test-title-update",
+    "status": "draft",
+    "tags": [2],
+    "featureImgUrl": "https://jkbt.site/imgs/logo.png",
+    "publishOn": "2026-08-19T15:43:00.000Z",
+    "meta":{
+        "readTime":"1 min read"
+    },
+    "authorId":2
+}
