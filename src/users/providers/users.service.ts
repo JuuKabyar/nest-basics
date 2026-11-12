@@ -1,9 +1,12 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/providers/auth.service';
 import { User } from '../user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create.user.dto';
+import * as config from '@nestjs/config';
+import { log } from 'console';
+import authConfig from '../config/auth.config';
 
 /**
  * Class to connet to Users table and make operations tasks
@@ -15,8 +18,16 @@ export class UsersService {
    * @param authService
    */
   constructor(
+    /** Inject authService */
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+
+    /** Inject ConfigService */
+    private readonly configService: config.ConfigService,
+
+    /**Inject AuthConfig */
+    @Inject(authConfig.KEY)
+    private readonly authConfiguration: config.ConfigType<typeof authConfig>,
 
     /**
      * Inject user repository
@@ -51,6 +62,10 @@ export class UsersService {
    */
   public findAll(limit: number, page: number) {
     const isAuth = this.authService.isAuth();
+
+    const env = this.configService.get('AUTH_KEY');
+    console.log('env auth key', env);
+    console.log(this.authConfiguration.fallbackurl);
 
     console.log('auth status', isAuth);
     return [
