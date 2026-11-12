@@ -1,46 +1,48 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 /**
- * DTO for full user Create.
+ * DTO for creating a new user
  */
 export class CreateUserDto {
-    /**
-     * The firstname of a user
-     */
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(3)
-    @MaxLength(20)
-    firstname!: string;
+  /** User's first name (min 3 characters) */
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(20)
+  firstname!: string;
 
-    /**
-     * The lastname of a user
-     */
-    @IsString()
-    @IsOptional()
-    @MinLength(3)
-    @MaxLength(20)
-    lastname?: string;
+  /** User's last name (optional, min 3 characters) */
+  @IsString()
+  @IsOptional()
+  @MinLength(3)
+  @MaxLength(20)
+  lastname?: string;
 
-    /**
-     * Email of a user
-     */
-    @IsString()
-    @IsNotEmpty()
-    @IsEmail()
-    @MaxLength(20)
-    email!: string;
+  /** User's email address */
+  @IsEmail()
+  @IsNotEmpty()
+  @MaxLength(50)
+  email!: string;
 
-    /**
-     * Password of a user
-     */
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    @MaxLength(20)
-    @Matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        {message: 'Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.'}
-    )
-    password!: string;
+  /** User's password (min 8 chars, must include upper/lowercase, number, special char) */
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  @MaxLength(20)
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    {
+      message:
+        'Minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, and 1 special character for password',
+    },
+  )
+  password!: string;
 }

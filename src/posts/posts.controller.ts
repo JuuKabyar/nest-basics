@@ -7,63 +7,52 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './providers/posts.service';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CreatePostDto } from './dtos/create.post.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PatchPostDto } from './dtos/patch.post.dto';
+import { GetPostsDto } from './dtos/get-posts.dto';
 
 /**
- * Controller to connect with post services
+ * Controller to handle HTTP requests for the posts resource
  */
 @Controller('posts')
 export class PostsController {
   /**
-   * Constructor to connect with post business logic
-   * @param postsService
+   * @param postsService - Injected PostsService for post business logic
    */
   constructor(private readonly postsService: PostsService) {}
 
   /**
-   * Method to get all posts
-   * @param userId
-   * @returns
+   * Returns all posts for a given user
+   * @param userId - The user ID from the route parameter
    */
   @Get('/:userId')
-  @ApiOperation({
-    summary: 'Fetched a list of post.',
-  })
-
-  /**
-   * Method psot by specific id
-   */
-  @ApiResponse({
-    status: 200,
-    description: 'Posts fetched sucfessfully.',
-  })
-  getPostsByUserId(@Param('userId', ParseIntPipe) userId: number) {
+  public getPostsByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.postsService.findAllByUserId(userId);
   }
 
   /**
-   * Returns all posts
+   * Retruns all posts
    * @returns
    */
   @Get('/')
-  public getPosts() {
-    return this.postsService.findAll();
+  public getPosts(@Query() postQuery: GetPostsDto) {
+    return this.postsService.findAll(postQuery);
   }
 
   /**
-   * Method to add a post
-   * @param createPostDto
+   * Creates a new blog post
+   * @param createPostDto - DTO containing new post data
    */
   @ApiOperation({
-    summary: 'Created a Post',
+    summary: 'Create a new blog post',
   })
   @ApiResponse({
     status: 201,
-    description: 'Post crated successfully.',
+    description: 'If you got 201 response, your post is created',
   })
   @Post()
   public createPost(@Body() createPostDto: CreatePostDto) {
@@ -71,32 +60,32 @@ export class PostsController {
   }
 
   /**
-   * Method to update a post
-   * @param patchpostDto
+   * Partially updates an existing blog post
+   * @param patchPostDto - DTO containing partial post data and post ID
    */
   @ApiOperation({
-    summary: 'Update a extends post',
+    summary: 'Update an existing blog post',
   })
   @ApiResponse({
     status: 200,
-    description: 'If you got 200 response, your post is updated.',
+    description: 'If you got 200 response, your post is updated',
   })
   @Patch()
-  public updatePost(@Body() patchpostDto: PatchPostDto) {
-    return this.postsService.update(patchpostDto);
+  public updatePost(@Body() patchPostDto: PatchPostDto) {
+    return this.postsService.update(patchPostDto);
   }
 
   /**
-   * Delete post by post id
-   * @param id post id
-   * @returns deleted post
+   * Delete a blog post by ID
+   * @param id
+   * @returns
    */
   @ApiOperation({
-    summary: 'Delete a post',
+    summary: 'Delete a blog post',
   })
   @ApiResponse({
     status: 200,
-    description: 'Post deleted successfully.',
+    description: 'If you got 200 response, your post was deleted',
   })
   @Delete('/:id')
   public deletePost(@Param('id', ParseIntPipe) id: number) {

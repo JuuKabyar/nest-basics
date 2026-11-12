@@ -6,7 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto } from '../dtos/create.post.dto';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDto } from '../dtos/patch.post.dto';
-import { PostMeta } from 'src/post-meta/post-meta.entity';
+import { GetPostsDto } from '../dtos/get-posts.dto';
+import { PaginationProvider } from 'src/common/pagination/provider/pagination.provider';
 
 /**
  * Service to handle business logic for posts
@@ -20,10 +21,10 @@ export class PostsService {
   constructor(
     /**Inject usersService */
     private readonly usersService: UsersService,
-
     /**Inject tagsService */
     private readonly tagsService: TagsService,
-
+    /**Inject paginationProvider */
+    private readonly paginationProvider: PaginationProvider,
     /** Inject postsRepository */
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
@@ -42,6 +43,7 @@ export class PostsService {
     }
 
     let tags = await this.tagsService.findMultiTags(createPostDto.tags!);
+
     let post = this.postsRepository.create({
       ...createPostDto,
       author,
@@ -52,13 +54,14 @@ export class PostsService {
   }
 
   /**
-   * Update a post
+   * Update existing blog with its id
    * @param patchPostDto
    * @returns
    */
-
   public async update(patchPostDto: PatchPostDto) {
-    const post = await this.postsRepository.findOneBy({
+    let tags = await this.tagsService.findMultiTags(patchPostDto.tags!);
+
+    let post = await this.postsRepository.findOneBy({
       id: patchPostDto.id,
     });
 
@@ -66,37 +69,35 @@ export class PostsService {
       throw new Error('Post not found');
     }
 
-    post.title = patchPostDto.title ?? post.title;
-    post.content = patchPostDto.content ?? post.content;
-    post.featureImgUrl = patchPostDto.featureImgUrl ?? post.featureImgUrl;
-    post.slug = patchPostDto.slug ?? post.slug;
-    post.status = patchPostDto.status ?? post.status;
-    post.publishOn = patchPostDto.publishOn ?? post.publishOn;
-
+    post.title = patchPostDto.title ?? post?.title;
+    post.content = patchPostDto.content ?? post?.content;
+    post.featureImgUrl = patchPostDto.featureImgUrl ?? post?.featureImgUrl;
+    post.slug = patchPostDto.slug ?? post?.slug;
+    post.status = patchPostDto.status ?? post?.status;
+    post.publishOn = patchPostDto.publishOn ?? post?.publishOn;
     if (patchPostDto.meta) {
-      post.meta = {
-        ...post.meta,
-        ...patchPostDto.meta,
-      } as PostMeta;
+      post.meta.readTime = patchPostDto.meta.readTime ?? post.meta.readTime;
     }
+    post.tags = tags;
 
-    if (patchPostDto.tags) {
-      post.tags = await this.tagsService.findMultiTags(patchPostDto.tags);
-    }
-
-    return this.postsRepository.save(post);
+    return await this.postsRepository.save(post);
   }
 
   /**
    * Returns all posts
    * @returns
    */
-  public async findAll() {
-    const posts = this.postsRepository.find({
-      relations: {
-        author: true,
-      },
-    });
+  public async findAll(postQuery: GetPostsDto) {
+    let posts;
+
+    if (postQuery.limit || postQuery.page) {
+      posts = this.paginationProvider.paginateQuery(
+        postQuery,
+        this.postsRepository,
+      );
+    } else {
+      posts = this.postsRepository.find();
+    }
     return posts;
   }
 

@@ -5,15 +5,17 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Put,
   Post,
+  Put,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create.user.dto';
 import { GetUserDto } from './dtos/get.user.dto';
 import { PutUserDto } from './dtos/put.user.dto';
 import { UsersService } from './providers/users.service';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { CreateManyUsersDto } from './dtos/create-many-users.dto';
 
 /**
  * Controller to handle HTTP requests for the users resource
@@ -21,23 +23,22 @@ import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 @Controller('users')
 export class UsersController {
   /**
-   * Injected UserService fo ruser business logic
-   * @param usersService
+   * @param usersService - Injected UsersService for user business logic
    */
   constructor(private readonly usersService: UsersService) {}
+
   /**
-   * Return a paginated list of all registered users
-   * @param limit
-   * @param page
-   * @returns
+   * Returns a paginated list of all registered users
+   * @param limit - Max number of users to return (default: 10)
+   * @param page - Page number to return (default: 1)
    */
   @Get()
   @ApiOperation({
-    summary: 'Fetches a list of users on the app',
+    summary: 'Fetches a list of registered users',
   })
   @ApiResponse({
     status: 200,
-    description: 'Users fetched successfully.',
+    description: 'Users fetched successfully',
   })
   @ApiQuery({
     name: 'limit',
@@ -53,17 +54,16 @@ export class UsersController {
     description: 'The number of page per query',
     example: 1,
   })
-  getAllUsers(
+  getUsers(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query('page', new DefaultValuePipe(20), ParseIntPipe) page: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
   ) {
     return this.usersService.findAll(limit, page);
   }
 
   /**
    * Returns a single user by their ID
-   * @param getUserDto
-   * @returns
+   * @param getUserDto - DTO containing the user ID from route params
    */
   @Get(':id')
   @ApiOperation({
@@ -74,16 +74,12 @@ export class UsersController {
     description: 'User fetched successfully',
   })
   getUser(@Param() getUserDto: GetUserDto) {
-    // console.log(params)
-    // console.log(params.id);
-    console.log(getUserDto);
-    return 'Get user endpoint.';
+    return this.usersService.findByUserId(getUserDto.id);
   }
 
   /**
    * Creates a new user
-   * @param createUserDto
-   * @returns
+   * @param createUserDto - DTO containing new user data
    */
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
@@ -92,13 +88,17 @@ export class UsersController {
 
   /**
    * Fully replaces an existing user's data
-   * @param putUserDto
-   * @returns
+   * @param putUserDto - DTO containing updated user data
    */
   @Put()
   updateUser(@Body() putUserDto: PutUserDto) {
     console.log(putUserDto);
 
-    return 'Update User endpoint hit';
+    return 'Update user endpoint hit';
+  }
+
+  @Post('create-many')
+  public createManyUsers(@Body() createUsersDto: CreateManyUsersDto) {
+    return this.usersService.createMany(createUsersDto);
   }
 }

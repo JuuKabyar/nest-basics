@@ -1,6 +1,29 @@
-POST http://localhost:5000/users 
+POST http://localhost:5000/users
 Content-Type: application/json
-{"firstname": "Juu", 
-"lastname": "Kabyar",
-"email":"juu@gmail.com", 
-"password": "111@jJjj"}
+
+{
+    "firstname":"juu",
+    "lastname":"kabyar",
+    "email":"juukabyar@codehub.com",
+    "password":"juu@10"
+}
+
+POST http://localhost:5000/users/create-many
+Content-Type: application/json
+
+{
+    "users" : [
+        {
+            "firstname":"Hnin",
+            "lastname":"Wai",
+            "email":"hnin@gmail.com",
+            "password":"hw@1010A"
+        },
+        {
+            "firstname":"kyaw",
+            "lastname":"kyaw",
+            "email":"kyaw@gmail.com",
+            "password":"kyaw@1010A"
+        }
+    ]
+}
